@@ -2,6 +2,10 @@ from extractor import FEEDS, obtener_noticias_recientes
 from processor import clasificar_y_seleccionar_top_3
 from generador_html import generar_html_newsletter
 from enviador_correo import enviar_por_outlook 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def ejecutar_pipeline():
     print("Iniciando pipeline de Newsletter Tech para SCL Consultores...")
@@ -25,7 +29,7 @@ def ejecutar_pipeline():
     
     print("Conectando con Outlook...")
     
-    lista_destinatarios = "equiroz@sclconsultores.com" 
+    lista_destinatarios = os.getenv("DESTINATARIOS", "elioquirozquispe@gmail.com") 
     
     envio_exitoso = enviar_por_outlook(
         html_cuerpo=codigo_html_final, 
