@@ -12,6 +12,7 @@ def ejecutar_pipeline():
     print("Iniciando pipeline de Newsletter Tech para SCL Consultores...")
     
     noticias = obtener_noticias_recientes(FEEDS, horas_limite=48)
+    
     print(f"Se encontraron {len(noticias)} noticias en las últimas 48 horas.\n")
     
     if not noticias:

@@ -30,7 +30,6 @@ def clasificar_y_seleccionar_top_3(noticias_recientes):
     - Selecciona el TOP 3.
     - Redacta un mensaje corto y directo en ESPAÑOL explicando por qué es importante.
     - Extrae el valor de "link" de la noticia original y ponlo en tu respuesta.
-    - Extrae el valor de "imagen" de la noticia original y ponlo en tu respuesta (si no tiene, deja el string vacío "").
     - TU RESPUESTA DEBE SER ÚNICAMENTE UN OBJETO JSON VÁLIDO. No incluyas texto fuera del JSON.
     
     FORMATO JSON REQUERIDO:
@@ -39,7 +38,6 @@ def clasificar_y_seleccionar_top_3(noticias_recientes):
         {
           "titulo": "Título original de la noticia",
           "link": "El enlace (URL) extraído de la noticia original",
-          "imagen": "La URL de la imagen extraída de la noticia original",
           "categoria_principal": "La categoría de la lista de prioridades que cumple",
           "resumen_corto": "Resumen técnico y corto en español de 2 líneas"
         }
@@ -50,23 +48,19 @@ def clasificar_y_seleccionar_top_3(noticias_recientes):
     prompt_usuario = f"Aquí están las noticias de las últimas 48 horas:\n{datos_noticias}\n\nDevuelve únicamente el JSON con el Top 3."
 
     ip_servidor = os.getenv("IP_SERVIDOR", "127.0.0.1") 
-    port = os.getenv("PORT_NUMBER", "127.0.0.1") 
-    url_api = f"http://{ip_servidor}:{port}/api/generate"
+    url_api = f"http://{ip_servidor}:11434/api/generate"
     
     payload = {
-        "model": "phi3:mini",
+        "model": "llama3",
         "system": prompt_sistema,
         "prompt": prompt_usuario,
         "stream": False,
-        "format": "json",
+        "format": "json", 
         "options": {
-            "temperature": 0.2,
+            "temperature": 0.1, 
             "top_p": 0.9
         }
     }
-
-    print(f"Enviando {len(noticias_recientes)} noticias a Ollama (phi3:mini) en la IP {ip_servidor}.")
-    print("El servidor puede tardar hasta 10 minutos. Esperando respuesta...")
 
     try:
         respuesta = requests.post(url_api, json=payload, timeout=720)
@@ -85,6 +79,15 @@ def clasificar_y_seleccionar_top_3(noticias_recientes):
         
         resultado_json = json.loads(texto_limpio.strip())
         
+        if "top_3" in resultado_json:
+            for noticia_ia in resultado_json["top_3"]:
+                link_ia = noticia_ia.get("link", "")
+                
+                for noticia_original in noticias_recientes:
+                    if noticia_original.get("link") == link_ia:
+                        noticia_ia["imagen"] = noticia_original.get("imagen", "")
+                        break
+
         return resultado_json
 
     except requests.exceptions.Timeout:
