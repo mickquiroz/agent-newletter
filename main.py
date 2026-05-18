@@ -4,6 +4,7 @@ from generador_html import generar_html_newsletter
 from enviador_correo import enviar_por_outlook 
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ def ejecutar_pipeline():
 
     print("Enviando a Ollama para clasificación. Esto puede demorar...")
     resultado_final_json = clasificar_y_seleccionar_top_3(noticias)
+    print(json.dumps(resultado_final_json, indent=2))
     
     if "error" in resultado_final_json:
         print(f"Error en la IA: {resultado_final_json['error']}")
@@ -26,6 +28,9 @@ def ejecutar_pipeline():
 
     print("Generando plantilla HTML con imágenes Base64 y enlaces...")
     codigo_html_final = generar_html_newsletter(resultado_final_json)
+    with open("vista_previa_correo.html", "w", encoding="utf-8") as f:
+        f.write(codigo_html_final)
+    print("Archivo vista_previa_correo.html generado para validar web.")
     
     print("Conectando con Outlook...")
     
